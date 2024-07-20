@@ -68,7 +68,10 @@ def main():
             else:
                 break
         
-        if not resp.status_code in [200]:
+        if resp.status_code == 400:
+            print('400 error, this probably means we have paginated all urls, exiting...')
+            break
+        elif not resp.status_code in [200]:
             cur.close()
             conn.close()
             raise Exception(f'unexpected status code {resp.status_code}')
