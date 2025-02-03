@@ -3,7 +3,7 @@
 
 # Help  
 ```
-usage: ia-cdx-search.py [-h] [--break-on-empty] [-p PROXY] [-r RETRIES] [-to TIMEOUT] query outfile user
+usage: ia-cdx-search.py [-h] [--break-on-empty] [-p PROXY] [-r RETRIES] [-to TIMEOUT] [--timemap] query outfile user
 
 positional arguments:
   query                 cdx query
@@ -19,6 +19,7 @@ options:
                         how many times to retry failed requests
   -to TIMEOUT, --timeout TIMEOUT
                         request timeout delay, set to 0 for no timeout
+  --timemap             use timemap api
 ```
 
 # Example  
