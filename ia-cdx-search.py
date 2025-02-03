@@ -28,8 +28,11 @@ def initdb(cur):
         );
     ''')
 
-cdxapi = 'https://web.archive.org/cdx/search/cdx'
-def main():
+def main(args):
+    cdxapi = 'https://web.archive.org/cdx/search/cdx'
+    if args.timemap:
+        cdxapi = 'https://web.archive.org/web/timemap/json'
+    
     print(f'baseurl: {cdxapi}?{args.query}')
     useragent = f'audrey cdx query script, username: {args.user}'
     headers = {'user-agent': useragent}
@@ -42,10 +45,14 @@ def main():
     
     # set cdx query
     cur.execute('INSERT INTO var_store (key, val) VALUES (?, ?) ON CONFLICT (key) DO NOTHING', ('cdx_query', args.query))
+    cur.execute('INSERT INTO var_store (key, val) VALUES (?, ?) ON CONFLICT (key) DO NOTHING', ('is_timemap', args.timemap))
     conn.commit()
     cur.execute("SELECT val FROM var_store WHERE key = 'cdx_query'")
     if cur.fetchone()[0] != args.query:
         raise Exception('query changed! change or delete existing output files (sqlite+cdx)')
+    cur.execute("SELECT val FROM var_store WHERE key = 'is_timemap'")
+    if bool(int(cur.fetchone()[0])) != args.timemap:
+        raise Exception('cdx endpoint changed! change or delete existing output files (sqlite+cdx)')
     
     # get page offset
     cur.execute("SELECT CAST(val AS INT) FROM var_store WHERE key = 'page_offset';")
@@ -111,6 +118,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--proxy', default=None, help='http proxy to use') # my IP is still banned D:
     parser.add_argument('-r', '--retries', type=int, default=5, help='how many times to retry failed requests')
     parser.add_argument('-to', '--timeout', type=int, default=120, help='request timeout delay, set to 0 for no timeout')
+    parser.add_argument('--timemap', action='store_true', help='use timemap api')
     args = parser.parse_args()
     
-    main()
+    main(args)
